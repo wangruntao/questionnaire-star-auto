@@ -1,47 +1,30 @@
+from utils import get_url_content
+
 # 目标网址
-url = 'https://www.wjx.cn/vj/wk8Yo2t.aspx'
-# url = 'https://www.wjx.cn/vm/ep3aOP1.aspx#'
-# url = 'https://www.wjx.cn/vm/QN6L2lI.aspx'
+url = 'https://www.wjx.cn/vm/Pi4VOMa.aspx?open_in_browser=true'  # 护士
+# debug = True
+debug = False
+# use_proxy_pool = True
+use_proxy_pool = False
+# 线程数，份数
+thread_num = 3
+epoch = 100
+sleep_time = 0
 
+task_list = [{
+    'url': 'https://www.wjx.cn/vm/Pi4VOMa.aspx?open_in_browser=true',  # 初中生
+    'prob': {
+        1: [2, 8]
+        # 3: [13, 14, 15],
+        # 5: [1, 2, 1],
+        # 6: [4, 3, 1, 1],
+        # 7: [3, 3, 2, 1, 1],
+        # 8: [1, 1, 2, 2, 3]
+    },
+    'num': 200
+}, ]
 
-single_choice_questions = {1, 2, 3, 4, 6, 7, 8, 9, 11, 13, 15, 16, 19, 20, 22, 24, 25}
-multiple_choice_questions = {5, 10, 12, 14, 17, 18, 21, 23}
-# 题项比例，确保选项数量和数组长度一致
-# prob = {
-#     1: [0.5, 0.5],  # 性别，等概率选择
-#     2: [0.25, 0.25, 0.25, 0.25],  # 学历，等概率选择
-#     3: [0.9, 0.1],  # 民族，主要选择汉族
-#     4: [1, 2, 2, 2, 0, 0],  # 政治面貌，偏重于团员和党员
-#     5: [1, 1, 1, 1, 1],  # 经常阅读的题材类型，等概率
-#     6: [0, 1, 1, 2, 2, 1, 0],  # 阅读题材研究程度，偏重于中间选项
-#     7: [1, 1, 1, 1, 1],  # 对个人成长影响最大的，等概率
-#     8: [0.6, 0.4],  # 阅读方式偏好，偏向纸质阅读
-#     9: [0, 0, 0.2, 0.2, 0.3, 0.3, 0],  # 纸质阅读频率，偏重于“有时”和“经常”
-#     10: [1, 1, 1, 1, 1],  # 纸质阅读内容，等概率
-#     11: [0, 0, 0.2, 0.2, 0.3, 0.3, 0],  # 数字阅读频率，偏重于“有时”和“经常”
-#     12: [1, 0.5, 0.3, 1, 2, 1, 1],  # 数字阅读使用的媒介，偏重于手机和平板
-#     13: [0.4, 0.6],  # 阅读方式舒适度，偏向数字阅读
-#     14: [1, 1, 1, 1, 1],  # 阅读时间安排，等概率
-#     15: [0.2, 0.2, 0.2, 0.2, 0.1, 0.1],  # 定期阅读规划时间，均衡偏好
-#     16: [0.6, 0.4],  # 是否有个人阅读规划，偏向有
-#     17: [0.7, 0.3],  # 能否在规划内完成阅读，偏向能
-#     18: [1, 1, 1, 1, 1, 1],  # 常用阅读交流方式，等概率
-#     19: [0, 0, 0.1, 0.3, 0.3, 0.3, 0],  # 交流方式的研究程度，偏重中间选项
-#     20: [1, 1, 1, 1, 1, 1],  # 影响个人成长的交流方式，等概率
-#     21: [1, 1, 1, 1, 1, 1],  # 阅读目的，等概率
-#     22: [0, 0.1, 0.2, 0.3, 0.2, 0.2, 0],  # 阅读目的的意识强烈程度，平衡偏好
-#     23: [1, 1, 1, 1, 1, 1],  # 影响大的阅读目的，等概率
-#     24: [0, 0, 0.1, 0.2, 0.3, 0.4, 0],  # 个人阅读习惯，偏向良好和优秀
-#     25: [0, 0, 0.1, 0.2, 0.3, 0.4, 0]  # 阅读习惯受大学生活影响的程度，偏向较大和极大
-# }
-
-
-
-
-
-
-
-
+# 什么类型的问卷
 type = 1
 if '/vm/' in url:
     type = 2
@@ -51,7 +34,7 @@ else:
     type = 0  # 默认值或其他情况
 
 # 远程ip池
-api = "https://service.ipzan.com/core-extract?num=10&no=20240413223483271825&minute=1&pool=quality&secret=m2u8fsj071od04"
+api = "http://zltiqu.pyhttp.taolop.com/getip?count=98&neek=103463&type=2&yys=0&port=1&sb=&mr=1&sep=0&ts=1&cs=1&regions=340000"
 
 # 是否隐藏浏览器
 headless = False
@@ -60,27 +43,9 @@ headless = False
 # 使用代理？
 use_api_proxy = False
 # use_api_proxy = True
-use_local_proxy = True
-# use_local_proxy = False
+# use_local_proxy = True
+use_local_proxy = False
 
-# 线程数，份数
-thread_num = 1
-epoch = 100
-sleep_time = 1
-
-# single_choice_questions = {1, 3, 4, 5, 6}
-# multiple_choice_questions = {2}
-# prob = {
-#     1: [1, 1, 1, 1]
-# }
-#
-prob = {}
-# 单选题号 多选题号
-
-# 简答题题库
-answerList = {
-    6: ["123", "12"]
-}
 # IP API提取链接 https://xip.ipzan.com/ 这个每周都有几百个免费的IP代理领取
 
 
@@ -92,3 +57,8 @@ UA = [
 ]
 
 driver_path = r"C:\Users\11575\Downloads\chromedriver-win64\chromedriver.exe"
+
+if debug:
+    headless = False
+else:
+    headless = True

@@ -1,8 +1,50 @@
 import random
 import time
+
+from bs4 import BeautifulSoup
 from selenium.webdriver.common.by import By
 from selenium.webdriver import ActionChains
 import numpy
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from bs4 import BeautifulSoup
+
+
+def get_url_content(url):
+    # Configure ChromeOptions
+    options = Options()
+    options.add_argument('--headless')
+
+    driver = webdriver.Chrome(options)  # or whichever browser driver you need
+    driver.get(url)
+
+    html_content = driver.page_source
+    # print(html_content)
+    driver.quit()
+    # Process HTML content to get question mapping
+    if html_content:
+        question_type_mapping = map_questions_to_types(html_content)
+        print("答案类型为：", question_type_mapping)
+        return question_type_mapping
+    else:
+        print("Failed to retrieve HTML content from the URL.")
+
+
+def map_questions_to_types(html_content):
+    soup = BeautifulSoup(html_content, 'html.parser')
+    type_of_question = {i: [] for i in range(1, 21)}  # Adjust range as necessary
+
+    question_divs = soup.find_all('div', {'data-role': 'fieldcontain'})
+
+    for div in question_divs:
+        topic = div.get('topic')
+        question_type = div.get('type')
+        if topic and question_type:
+            topic_number = int(topic)
+            question_type = int(question_type)
+            type_of_question[question_type].append(topic_number)
+
+    return type_of_question
 
 
 # 选取答案
@@ -101,21 +143,6 @@ def multi_matrix_scale(driver, id, prob, idx, num):
     return idx
 
 
-# 下拉框 type=7
-def select(driver, id, prob, idx):
-    xpath = '//*[@id="div{}"]/div[2]'.format(id)
-    driver.find_element(By.XPATH, xpath).click()
-    xpath = "//*[@id='select2-q{}-results']/li".format(id)
-    answers = driver.find_elements(By.XPATH, xpath)
-    # 有一个“请选择”,所以len-1
-    p = preprocess_prob(prob.get(idx), len(answers) - 1)
-    choice = numpy.random.choice(a=numpy.arange(1, len(answers)), p=p)
-    xpath = "//*[@id='select2-q{}-results']/li[{}]".format(id, choice + 1)
-    driver.find_element(By.XPATH, xpath).click()
-    idx += 1
-    return idx
-
-
 # 滑动条 type=8
 def single_slide(driver, id, prob, idx):
     xpath = '//*[@id="jsrs_q{}"]/div[3]/div'.format(id)
@@ -154,21 +181,6 @@ def add_one(lists, num, index):
         if lists[i] < num:
             lists[i] += 1
     return lists
-
-
-# 排序题 type=11
-def sort(driver, id, prob, idx):
-    xpath = '//*[@id="div{}"]/ul/li'.format(id)
-    answers = driver.find_elements(By.XPATH, xpath)
-    order = prob.get(idx)[:]
-    for i in range(len(order)):
-        index = order[i]
-        xpath = '//*[@id="div{}"]/ul/li[{}]'.format(id, index)
-        driver.find_element(By.XPATH, xpath).click()
-        time.sleep(0.5)
-        order = add_one(order, index, i)
-    idx += 1
-    return idx
 
 
 # 分配题 type=12  暂时还没有完成

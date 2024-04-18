@@ -67,3 +67,27 @@ def multi_choice1(driver, id, prob):
             EC.element_to_be_clickable((By.XPATH, checkbox_xpath))
         )
         driver.find_element(By.XPATH, checkbox_xpath).click()
+
+
+# type = 6
+def matrix_scale1(driver, id, prob):
+    pass
+
+
+def select1(driver, id, prob):
+    pass
+
+
+def single_scale1(driver, id, prob):
+    pass
+
+
+def sort1(driver, id, prob):
+    pass
+
+
+def fill_blank1(driver, id, answerList):
+    pass
+def fill_single_blank1(driver, id, answerList):
+    # 构建 XPath，用于定位对应的输入框
+    pass
