@@ -16,7 +16,12 @@ from utils1 import single_choice1, multi_choice1, click_button1, matrix_scale1, 
 from utils2 import single_choice2, multi_choice2, click_button2, matrix_scale2, select2, single_scale2, sort2, \
     fill_blank2, fill_single_blank2
 from threading import Event
+import logging
+from selenium.common.exceptions import WebDriverException
 
+# 配置日志
+logging.basicConfig(filename='survey_thread.log', level=logging.INFO,
+                    format='%(asctime)s:%(levelname)s:%(message)s')
 proxy_lock = threading.Lock()
 
 
@@ -53,52 +58,39 @@ def determine_question_type(driver, prob, type_of_question):
         # 如果是单选题3
         if question_id in single_choice_questions:
             # print(f"Question {question_id} is a single-choice question.")
-            try:
-                single_choice[type](driver, question_id, prob)
-            except Exception as e:
-                # 打印出错误信息和出错的题号
-                print(f"Error answering single-choice question {question_id}: {e}")
-                # break
+            single_choice[type](driver, question_id, prob)
+
         elif question_id in fill_single_blank_questions:
-            try:
-                fill_single_blank[type](driver, question_id, prob)
-            except Exception as e:
-                print(f"Error answering fill single blank  question {question_id}: {e}")
+
+            fill_single_blank[type](driver, question_id, prob)
+
         elif question_id in fill_blank_questions:
-            try:
-                fill_blank[type](driver, question_id, prob)
-            except Exception as e:
-                print(f"Error answering fill blank question {question_id}: {e}")
+
+            fill_blank[type](driver, question_id, prob)
+
         # 如果是多选题4
         elif question_id in multiple_choice_questions:
-            # print(f"Question {question_id} is a multiple-choice question.")
-            try:
-                multi_choice[type](driver, question_id, prob)
-            except Exception as e:
-                pass
-                print(f"Error answering multiple-choice question {question_id}:{e}")
+
+            multi_choice[type](driver, question_id, prob)
+
         elif question_id in single_scale_questions:
-            try:
-                single_scale[type](driver, question_id, prob)
-            except Exception as e:
-                print(f"Error answering single scale question {question_id}:{e}")
+
+            single_scale[type](driver, question_id, prob)
+
         # 如果是q矩阵量表
         elif question_id in matrix_rating:
-            try:
-                matrix_scale[type](driver, question_id, prob)
-            except Exception as e:
-                print(f"Error answering single-matrix-scale question {question_id}:{e}")
+
+            matrix_scale[type](driver, question_id, prob)
+
         # 如果是下拉框
         elif question_id in select_questions:
-            try:
-                select[type](driver, question_id, prob)
-            except Exception as e:
-                print(f"Error answering select-question {question_id}:{e}")
+
+            select[type](driver, question_id, prob)
+
         elif question_id in sort_questions:
-            try:
-                sort[type](driver, question_id, prob)
-            except Exception as e:
-                print(f"Error answering sort-question {question_id}:{e}")
+
+            sort[type](driver, question_id, prob)
+
         else:
             print(f"Question {question_id} is not clearly categorized.")
         time.sleep(1)
@@ -136,7 +128,6 @@ def updata_proxy_data(api):
 
 def survey_thread(url, num, prob, type_of_question, count_lock, count):
     while count.value < num:
-
         user_agent = random.choice(user_agents)
         driver, pid = setup_driver(user_agent)
         try:
@@ -145,11 +136,12 @@ def survey_thread(url, num, prob, type_of_question, count_lock, count):
             if click_button[type](driver):
                 with count_lock:
                     count.value += 1
-                    if count.value % 10 == 0:
+                    print(f"Count is increased to {count.value}")
+                    if count.value % 10 == 0 and config.use_proxy_pool :
                         updata_proxy_data(config.api)
-                    print(f"count is increased to {count}")
         except Exception as e:
-            print(f"Error during survey completion: {str(e)}")
+            logging.error(f"Error during survey completion: {str(e)},url:{url},prob:{prob}")
+            break
         finally:
             if driver is not None:
                 driver.quit()
