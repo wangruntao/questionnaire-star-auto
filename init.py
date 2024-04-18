@@ -24,9 +24,9 @@ def setup_driver(user_agent):
     if config.use_local_proxy:
         options.add_argument('--proxy-server=http://localhost:7890')
     if config.use_proxy_pool:
+        print("使用代理")
         # url = 'http://zltiqu.pyhttp.taolop.com/getip?count=16&neek=103463&type=2&yys=0&port=1&sb=&mr=1&sep=0&ts=1&regions=110000,320000,370000,450000,500000,410000,330000,130000,150000,340000,420000,510000,520000,430000,350000,210000,220000,360000,440000,610000'
-        api = config.api
-        proxy_data = requests.get(api).json()
+        proxy_data = config.proxy_data
         # 随机选择一个代理
         selected_proxy = random.choice(proxy_data['data'])
         proxy_server = f"http://{selected_proxy['ip']}:{selected_proxy['port']}"

@@ -2,6 +2,7 @@ import multiprocessing
 import threading
 import random
 import time
+import requests
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -14,6 +15,9 @@ from utils1 import single_choice1, multi_choice1, click_button1, matrix_scale1, 
     fill_blank1, fill_single_blank1
 from utils2 import single_choice2, multi_choice2, click_button2, matrix_scale2, select2, single_scale2, sort2, \
     fill_blank2, fill_single_blank2
+from threading import Event
+
+proxy_lock = threading.Lock()
 
 
 def open_survey_and_wait(driver, url):
@@ -116,8 +120,23 @@ def kill_chromedriver_by_pid(pid):
         print(f"Failed to kill chromedriver with PID {pid}: {e}")
 
 
+def updata_proxy_data(api):
+    with proxy_lock:
+        try:
+            response = requests.get(api, timeout=10)
+            if response.status_code == 200:
+                proxy_data = response.json()
+                config.proxy_data = proxy_data
+                print("更新代理")
+            else:
+                print(f"请求失败，状态码：{response.status_code}")
+        except requests.RequestException as e:
+            print(f"请求过程中发生错误: {e}")
+
+
 def survey_thread(url, num, prob, type_of_question, count_lock, count):
     while count.value < num:
+
         user_agent = random.choice(user_agents)
         driver, pid = setup_driver(user_agent)
         try:
@@ -126,12 +145,16 @@ def survey_thread(url, num, prob, type_of_question, count_lock, count):
             if click_button[type](driver):
                 with count_lock:
                     count.value += 1
+                    if count.value % 10 == 0:
+                        updata_proxy_data(config.api)
                     print(f"count is increased to {count}")
         except Exception as e:
             print(f"Error during survey completion: {str(e)}")
         finally:
-            driver.quit()
-            time.sleep(sleep_time)
+            if driver is not None:
+                driver.quit()
+            kill_chromedriver_by_pid(pid)
+            time.sleep(sleep_time)  # 确保有足够的延时
 
 
 # 在 main 函数中修改线程创建逻辑
