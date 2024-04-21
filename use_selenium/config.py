@@ -1,7 +1,5 @@
 import requests
 
-from utils import get_url_content
-
 # 目标网址
 url = 'https://www.wjx.cn/vm/Pi4VOMa.aspx?open_in_browser=true'  # 护士
 # debug = True
@@ -9,9 +7,9 @@ debug = False
 # use_proxy_pool = True
 use_proxy_pool = False
 # 线程数，份数
-thread_num = 8
+thread_num = 4
 epoch = 100
-sleep_time = 1
+sleep_time = 0
 
 task_list = [
     # {

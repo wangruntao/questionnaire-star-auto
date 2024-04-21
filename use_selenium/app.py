@@ -3,8 +3,6 @@ import multiprocessing
 from concurrent.futures.thread import ThreadPoolExecutor
 import config
 from flask import Flask, request, jsonify
-import threading
-import time
 from stream_line import survey_thread
 from utils import get_url_content
 from queue import Queue, Empty

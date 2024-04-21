@@ -15,9 +15,7 @@ from utils1 import single_choice1, multi_choice1, click_button1, matrix_scale1, 
     fill_blank1, fill_single_blank1
 from utils2 import single_choice2, multi_choice2, click_button2, matrix_scale2, select2, single_scale2, sort2, \
     fill_blank2, fill_single_blank2
-from threading import Event
 import logging
-from selenium.common.exceptions import WebDriverException
 
 # 配置日志
 logging.basicConfig(filename='survey_thread.log', level=logging.INFO,
@@ -93,7 +91,7 @@ def determine_question_type(driver, prob, type_of_question):
 
         else:
             print(f"Question {question_id} is not clearly categorized.")
-        time.sleep(1)
+        # time.sleep(1)
 
 
 def kill_chromedriver_by_pid(pid):
@@ -127,6 +125,7 @@ def updata_proxy_data(api):
 
 
 def survey_thread(url, num, prob, type_of_question, count_lock, count):
+    print(num)
     while count.value < num:
         user_agent = random.choice(user_agents)
         driver, pid = setup_driver(user_agent)
@@ -137,7 +136,7 @@ def survey_thread(url, num, prob, type_of_question, count_lock, count):
                 with count_lock:
                     count.value += 1
                     print(f"Count is increased to {count.value}")
-                    if count.value % 10 == 0 and config.use_proxy_pool :
+                    if count.value % 10 == 0 and config.use_proxy_pool:
                         updata_proxy_data(config.api)
         except Exception as e:
             logging.error(f"Error during survey completion: {str(e)},url:{url},prob:{prob}")
@@ -146,7 +145,10 @@ def survey_thread(url, num, prob, type_of_question, count_lock, count):
             if driver is not None:
                 driver.quit()
             kill_chromedriver_by_pid(pid)
+            logging.info(f"Driver for task {url} quit properly.")
             time.sleep(sleep_time)  # 确保有足够的延时
+
+
 
 
 # 在 main 函数中修改线程创建逻辑
