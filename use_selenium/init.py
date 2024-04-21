@@ -38,7 +38,7 @@ def setup_driver(user_agent):
     options.add_argument("--disable-dev-shm-usage")
     options.add_experimental_option('excludeSwitches', ['enable-automation'])
     options.add_experimental_option('useAutomationExtension', False)
-    # options.add_argument(f"user-agent={user_agent}")
+    options.add_argument(f"user-agent={user_agent}")
     options.add_argument('--ignore-certificate-errors')
     driver = webdriver.Chrome(service=service, options=options)
     # 将webdriver属性置为undefined

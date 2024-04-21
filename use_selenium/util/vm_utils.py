@@ -8,7 +8,7 @@ from selenium.webdriver import ActionChains
 import numpy
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from utils import preprocess_prob, add_one
+from use_selenium.util.pub_utils import preprocess_prob, add_one
 
 
 # 检查有没有答完
@@ -21,63 +21,57 @@ def detect_full2(driver):
 
 
 def click_button2(driver):
-    # driver.get(r'https://www.wjx.cn/vj/wk8Yo2t.aspx')
     try:
-        submit_button = driver.find_element(By.XPATH, '//*[@id="ctlNext"]')
+        # 等待提交按钮出现并点击
+        submit_button = WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.XPATH, '//*[@id="ctlNext"]'))
+        )
         submit_button.click()
-        # 使用WebDriverWait来等待按钮不可见，表明已经处理完毕
-        try:
-            WebDriverWait(driver, 3).until_not(
-                EC.visibility_of_element_located((By.XPATH, '//*[@id="ctlNext"]'))
-            )
-            print("Button is no longer visible, assumed success.")
-            return True
-        except TimeoutException:
-            # 如果等待超时，则认为按钮仍然可见，可能是提交未成功
-            print("需要验证")
+        print("Button clicked.")
 
+        # 等待按钮不可见，表明已经处理完毕
+        WebDriverWait(driver, 5).until_not(
+            EC.visibility_of_element_located((By.XPATH, '//*[@id="ctlNext"]'))
+        )
+        print("Button is no longer visible, assumed success.")
+        return True
+
+    except TimeoutException:
+        print("Button did not disappear, validation might be needed.")
     except Exception as e:
-        print('点击失败')
-    # 请点击智能验证码进行验证！
+        print('点击失败:', str(e))
+
+    # 检查是否存在确认验证的按钮
     try:
         comfirm = driver.find_element(By.XPATH, '//*[@id="layui-layer1"]/div[3]/a')
         comfirm.click()
-        time.sleep(1)
-        print('验证成功')
-    except Exception as e:
-        pass
-        # print(e)
+        time.sleep(5)
+        print('确认验证点击成功.')
+    except NoSuchElementException:
+        print("确认验证按钮不存在.")
 
-    flag = False
-    # 点击按钮开始智能验证
+    # 检查是否存在其他类型的验证按钮
     try:
         button = driver.find_element(By.XPATH, '//*[@id="SM_BTN_WRAPPER_1"]')
         button.click()
-        time.sleep(0.5)
-        flag = True
-        print('验证成功')
-    except Exception as e:
-        pass
-        # print(e)
+        time.sleep(5)
+        print('智能验证点击成功.')
+    except NoSuchElementException:
+        print("智能验证按钮不存在.")
 
-    # 滑块验证
+    # 处理滑块验证
     try:
-        slider = driver.find_element(By.XPATH, '//*[@id="nc_1__scale_text"]/span')
-        time.sleep(0.3)
-        if str(slider.text).startswith("请按住滑块，拖动到最右边"):
-            width = slider.size.get('width')
-            ActionChains(driver).drag_and_drop_by_offset(slider, width, 0).perform()
-            time.sleep(1)
-            flag = True
-            print('验证成功')
-    except Exception as e:
-        pass
-        # print(e)
+        slider = driver.find_element(By.XPATH, '//*[@id="nc_1_n1z"]')  # 更新滑块元素的正确XPATH
+        if slider.is_displayed():
+            width = slider.size['width']
+            ActionChains(driver).click_and_hold(slider).move_by_offset(width, 0).release().perform()
+            time.sleep(5)
+            print('滑块验证成功.')
+            return True
+    except NoSuchElementException:
+        print("滑块验证不存在.")
 
-    time.sleep(3)
-    driver.quit()
-
-    return flag
+    return True
 
 
 # type = 3 单选

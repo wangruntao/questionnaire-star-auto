@@ -2,24 +2,26 @@ import multiprocessing
 import threading
 import random
 import time
+
 import requests
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, WebDriverException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from utils import get_url_content
+
+from urllib3.exceptions import NewConnectionError, MaxRetryError
+from use_selenium.util.pub_utils import get_url_content
 import config
 from init import setup_driver
 import psutil
-from utils1 import single_choice1, multi_choice1, click_button1, matrix_scale1, select1, single_scale1, sort1, \
+from use_selenium.util.utils1 import single_choice1, multi_choice1, click_button1, matrix_scale1, select1, \
+    single_scale1, sort1, \
     fill_blank1, fill_single_blank1
-from utils2 import single_choice2, multi_choice2, click_button2, matrix_scale2, select2, single_scale2, sort2, \
+from use_selenium.util.vm_utils import single_choice2, multi_choice2, click_button2, matrix_scale2, select2, \
+    single_scale2, sort2, \
     fill_blank2, fill_single_blank2
-import logging
 
-# 配置日志
-logging.basicConfig(filename='survey_thread.log', level=logging.INFO,
-                    format='%(asctime)s:%(levelname)s:%(message)s')
+#
 proxy_lock = threading.Lock()
 
 
@@ -125,7 +127,6 @@ def updata_proxy_data(api):
 
 
 def survey_thread(url, num, prob, type_of_question, count_lock, count):
-    print(num)
     while count.value < num:
         user_agent = random.choice(user_agents)
         driver, pid = setup_driver(user_agent)
@@ -135,20 +136,25 @@ def survey_thread(url, num, prob, type_of_question, count_lock, count):
             if click_button[type](driver):
                 with count_lock:
                     count.value += 1
-                    print(f"Count is increased to {count.value}")
+                    print(f"完成数量增加到 {count.value}")
                     if count.value % 10 == 0 and config.use_proxy_pool:
                         updata_proxy_data(config.api)
+        except NewConnectionError as e:
+            print(f"无法建立新连接：{e}")
+        except MaxRetryError as e:
+            print(f"尝试连接次数超过限制：{e.reason}")
+        except WebDriverException as e:
+            print(f"WebDriver 异常：{e}")
         except Exception as e:
-            logging.error(f"Error during survey completion: {str(e)},url:{url},prob:{prob}")
-            break
+            print(f"在完成问卷时发生错误：{e}，url：{url}，prob：{prob}")
         finally:
             if driver is not None:
-                driver.quit()
-            kill_chromedriver_by_pid(pid)
-            logging.info(f"Driver for task {url} quit properly.")
-            time.sleep(sleep_time)  # 确保有足够的延时
-
-
+                try:
+                    driver.quit()
+                    print(f"任务 {url} 的驱动已正确退出。")
+                except WebDriverException:
+                    print(f"关闭驱动时发生错误，任务 {url}。")
+            time.sleep(5)  # 如果你希望在每次循环之间有暂停的话
 
 
 # 在 main 函数中修改线程创建逻辑

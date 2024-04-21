@@ -10,6 +10,20 @@ from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
 
 
+def get_que_and_ans(url):
+    # Configure ChromeOptions
+    options = Options()
+    options.add_argument('--headless')
+
+    driver = webdriver.Chrome(options)  # or whichever browser driver you need
+    driver.get(url)
+
+    html_content = driver.page_source
+
+    # Process HTML content to get question mapping
+
+
+
 def get_url_content(url):
     # Configure ChromeOptions
     options = Options()

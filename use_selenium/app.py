@@ -1,13 +1,18 @@
 import json
 import multiprocessing
+import time
 from concurrent.futures.thread import ThreadPoolExecutor
 import config
 from flask import Flask, request, jsonify
 from stream_line import survey_thread
-from utils import get_url_content
+from use_selenium.util.pub_utils import get_url_content
 from queue import Queue, Empty
 import threading
 import uuid
+from util.kill_chrom import kill_chrome_periodically
+from util.get_ques_and_ans import get_que_and_ans
+from flask import Response
+
 # 定义不同状态的任务队列
 pending_tasks_queue = Queue()  # 待处理任务队列
 paused_tasks_queue = Queue()  # 已暂停任务队列
@@ -20,6 +25,38 @@ tasks_lock = threading.Lock()
 app = Flask(__name__)
 
 
+@app.route('/handle_task', methods=['POST'])
+def handle_task():
+    # 尝试获取JSON数据
+    data = request.get_json()
+    if not data:
+        return jsonify({"status": "error", "message": "No JSON data provided"}), 400
+
+    # 从JSON数据中提取url和prob
+    url = data.get('url')
+    prob = data.get('prob')
+    if not url or not prob:
+        return jsonify({"status": "error", "message": "Missing 'url' or 'prob' field"}), 400
+
+    # 你的处理逻辑...
+    print(f"Handling task with url: {url} and prob: {prob}")
+
+    # 假设处理成功，返回成功的响应
+    return jsonify({"status": "success", "message": "Task handled successfully"})
+
+
+@app.route('/analyze', methods=['POST'])
+def analyze_url():
+    data = request.get_json()
+    url = data['url']
+    results = get_que_and_ans(url)
+
+    # 你的解析逻辑，这里假设返回一个固定的结构
+
+    return Response(results, mimetype='application/json')
+
+
+# 增加任务
 @app.route('/update_task_list', methods=['POST'])
 def update_task_list():
     task = request.json.get('task_list')
@@ -30,6 +67,7 @@ def update_task_list():
     print(f"Task list updated successfully with task ID {task_id}.")
     return jsonify({"message": "Task list updated successfully.", "task_id": task_id}), 200
 
+
 @app.route('/pause_task', methods=['POST'])
 def pause_task():
     with tasks_lock:
@@ -39,7 +77,6 @@ def pause_task():
             return jsonify({"message": "Task paused successfully.", "task_id": task_id}), 200
         else:
             return jsonify({"message": "No task is currently in progress."}), 404
-
 
 
 def execute_tasks():
@@ -67,8 +104,29 @@ def execute_tasks():
             print("No tasks in the list, waiting for new tasks...")
 
 
+@app.route('/tasks/all', methods=['GET'])
+def get_all_tasks():
+    with tasks_lock:
+        # 从队列中获取所有任务，并转换为列表
+        pending_tasks = [task for task in list(pending_tasks_queue.queue)]
+        paused_tasks = [task for task in list(paused_tasks_queue.queue)]
+        completed_tasks = [task for task in list(completed_tasks_queue.queue)]
+        in_progress_tasks_list = [task for task in in_progress_tasks.values()]
+
+    # 将任务转换为可序列化的格式，例如你可能需要确保每个任务是一个字典
+    # 注意：这里假设每个任务已经是一个字典格式，如果不是，你需要进行相应的转换
+
+    return jsonify({
+        "pending_tasks": pending_tasks,
+        "paused_tasks": paused_tasks,
+        "in_progress_tasks": in_progress_tasks_list,
+        "completed_tasks": completed_tasks
+    }), 200
+
+
 def process_task(task):
     # 获取任务详情
+    start_time = time.time()
     url = task.get('url')
     num = task.get('num')
     prob_str = task.get('prob')
@@ -99,8 +157,11 @@ def process_task(task):
 
     # 打印任务完成信息
     print(f"Task for URL: {url} completed.")
+    end_time = time.time()
+    print(f"用时: {end_time - start_time:.2f}秒")
 
 
 if __name__ == "__main__":
+    threading.Thread(target=kill_chrome_periodically, daemon=True, args=(config.kill_chrome_interval,)).start()
     threading.Thread(target=execute_tasks, daemon=True).start()
     app.run(host='0.0.0.0', port=5000, debug=True)

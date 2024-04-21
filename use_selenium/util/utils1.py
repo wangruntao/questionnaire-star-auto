@@ -1,5 +1,4 @@
 import random
-import time
 import numpy as np
 from selenium.common import NoSuchElementException, TimeoutException
 from selenium.webdriver.common.by import By
@@ -7,7 +6,7 @@ from selenium.webdriver import ActionChains
 import numpy
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from utils import preprocess_prob
+from use_selenium.util.pub_utils import preprocess_prob
 
 
 # 检查有没有答完
