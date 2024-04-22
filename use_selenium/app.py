@@ -12,6 +12,9 @@ import uuid
 from util.kill_chrom import kill_chrome_periodically
 from util.get_ques_and_ans import get_que_and_ans
 from flask import Response
+import redis
+
+redis_client = redis.Redis(host='localhost', port=6379, db=0)
 
 # 定义不同状态的任务队列
 pending_tasks_queue = Queue()  # 待处理任务队列
@@ -23,6 +26,20 @@ completed_tasks_queue = Queue()  # 已完成任务队列
 tasks_lock = threading.Lock()
 
 app = Flask(__name__)
+
+
+@app.route('/record_visit',methods=['GET'])
+def record_visit():
+    print('Recording visit...')
+    redis_client.incr('visit_count')
+    return jsonify(success=True)
+
+
+@app.route('/get_visits',methods=['GET'])
+def get_visits():
+    print('get_visit')
+    visits = redis_client.get('visit_count') or 0
+    return jsonify(visits=int(visits))
 
 
 @app.route('/handle_task', methods=['POST'])

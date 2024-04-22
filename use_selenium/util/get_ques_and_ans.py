@@ -50,6 +50,18 @@ def get_que_and_ans(url):
             answer_count = len(question.find_all('option')) - 1  # Exclude 'Please select'
         elif question.get('type') == '5':  # Scale
             answer_count = len(question.find_all('a', class_='rate-off'))
+        elif question.get('type') == '6':  # Matrix scale
+            table = question.find('table', class_='matrix-rating matrixtable')
+            rows = table.find_all('tr')
+            # 计算第一行中所有单选按钮的数量
+            # 第一行评分选项（通常是第二行TR元素）
+            if len(rows) > 0:
+                first_row = rows[-1]
+                # 计算评分选项的数量
+                answer_count = len(first_row.find_all('a', class_='rate-off rate-offlarge'))
+
+
+
         # Add more conditions for different types if necessary
 
         # Append the question and answer data to the list
