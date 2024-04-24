@@ -1,6 +1,9 @@
+import json
 import random
 import time
+import uuid
 
+import redis
 from bs4 import BeautifulSoup
 from selenium.webdriver.common.by import By
 from selenium.webdriver import ActionChains
@@ -8,6 +11,42 @@ import numpy
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
+
+redis_client = redis.Redis(host='localhost', port=6379, db=0)
+
+
+def increment_num(num):
+    redis_client.incrby('survey_count', num)
+
+
+def decrement_num(num):
+    # 减少问卷数量
+    redis_client.decrby('survey_count', num)
+
+
+def add_task(url, prob, num):
+    task_id = str(uuid.uuid4())
+    task_data = {
+        'url': url,
+        'prob': json.dumps(prob),
+        'num': num
+    }
+
+    # redis_client.hmset(f"task:{task_id}", task_data)
+    for key, value in task_data.items():
+        redis_client.hset(f"task:{task_id}", key, value)
+
+    # redis_client.lpush('taskqueue', task_id)
+    # Check the type of 'task_queue'
+    if redis_client.type('task_queue').decode('utf-8') != 'list':
+        print("Resetting 'task_queue'...")
+        redis_client.delete('task_queue')  # This will delete the key if it's not a list.
+
+    # Now you can safely use 'task_queue' as a list
+    redis_client.lpush('task_queue', task_id)  # Example of adding an item to the list
+
+    increment_num(num)
+    return task_id
 
 
 def get_que_and_ans(url):
@@ -21,7 +60,6 @@ def get_que_and_ans(url):
     html_content = driver.page_source
 
     # Process HTML content to get question mapping
-
 
 
 def get_url_content(url):

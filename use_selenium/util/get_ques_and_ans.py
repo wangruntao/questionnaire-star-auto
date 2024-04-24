@@ -3,6 +3,8 @@ from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
 import json
 
+from use_selenium import config
+
 question_types = {
     3: "单选题",
     4: "多选题",
@@ -22,7 +24,8 @@ def get_que_and_ans(url):
     # Configure WebDriver to run headless
     options = Options()
     options.add_argument('--headless')
-    driver = webdriver.Chrome(options=options)
+    # driver = webdriver.Chrome(options=options)
+    driver = webdriver.Remote(command_executor=config.remote_url, options=options)
     driver.get(url)
 
     # Parse the HTML content
