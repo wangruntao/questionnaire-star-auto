@@ -1,0 +1,44 @@
+2024-04-21 15:01:56,659:INFO:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-04-21 15:01:56,659:INFO:[33mPress CTRL+C to quit[0m
+2024-04-21 15:02:45,726:INFO:127.0.0.1 - - [21/Apr/2024 15:02:45] "POST /update_task_list HTTP/1.1" 200 -
+2024-04-21 15:03:21,492:INFO:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-04-21 15:03:21,492:INFO:[33mPress CTRL+C to quit[0m
+2024-04-21 15:03:43,725:INFO:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-04-21 15:03:43,725:INFO:[33mPress CTRL+C to quit[0m
+2024-04-21 15:03:49,793:INFO:127.0.0.1 - - [21/Apr/2024 15:03:49] "POST /update_task_list HTTP/1.1" 200 -
+2024-04-21 15:05:02,421:INFO:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-04-21 15:05:02,421:INFO:[33mPress CTRL+C to quit[0m
+2024-04-21 15:05:27,429:INFO:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-04-21 15:05:27,429:INFO:[33mPress CTRL+C to quit[0m
+2024-04-21 15:06:16,927:INFO:127.0.0.1 - - [21/Apr/2024 15:06:16] "POST /update_task_list HTTP/1.1" 200 -
+2024-04-21 15:06:18,314:INFO:127.0.0.1 - - [21/Apr/2024 15:06:18] "POST /update_task_list HTTP/1.1" 200 -
+2024-04-21 15:06:19,481:INFO:127.0.0.1 - - [21/Apr/2024 15:06:19] "POST /update_task_list HTTP/1.1" 200 -
+2024-04-21 15:06:20,399:INFO:127.0.0.1 - - [21/Apr/2024 15:06:20] "POST /update_task_list HTTP/1.1" 200 -
+2024-04-21 15:06:21,464:INFO:127.0.0.1 - - [21/Apr/2024 15:06:21] "POST /update_task_list HTTP/1.1" 200 -
+2024-04-21 15:09:15,824:INFO:127.0.0.1 - - [21/Apr/2024 15:09:15] "POST /update_task_list HTTP/1.1" 200 -
+2024-04-21 15:09:28,624:INFO:127.0.0.1 - - [21/Apr/2024 15:09:28] "POST /update_task_list HTTP/1.1" 200 -
+2024-04-21 15:09:37,103:INFO:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-04-21 15:09:37,103:INFO:[33mPress CTRL+C to quit[0m
+2024-04-21 15:10:38,323:INFO:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-04-21 15:10:38,323:INFO:[33mPress CTRL+C to quit[0m
+2024-04-21 15:10:51,891:INFO:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-04-21 15:10:51,891:INFO:[33mPress CTRL+C to quit[0m
+2024-04-21 15:11:15,148:INFO:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-04-21 15:11:15,148:INFO:[33mPress CTRL+C to quit[0m
+2024-04-21 15:11:23,776:INFO:127.0.0.1 - - [21/Apr/2024 15:11:23] "[33mGET / HTTP/1.1[0m" 404 -
+2024-04-21 15:11:24,381:INFO:127.0.0.1 - - [21/Apr/2024 15:11:24] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2024-04-21 15:12:22,425:INFO:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-04-21 15:12:22,426:INFO:[33mPress CTRL+C to quit[0m
+2024-04-21 15:13:24,920:INFO:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2024-04-21 15:13:24,920:INFO:[33mPress CTRL+C to quit[0m

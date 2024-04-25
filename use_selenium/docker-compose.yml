@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  flask-app:
+    build: .
+    ports:
+      - "5000:5000"
+    depends_on:
+      - redis
+      - chrome
+    volumes:
+      - .:/app
+    environment:
+      - CHROMEDRIVER_PATH=/usr/local/bin/chromedriver
+      - SELENIUM_REMOTE_URL=http://chrome:4444/wd/hub
+
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
+
+  chrome:
+    image: selenium/standalone-chrome:latest
+    ports:
+      - "4444:4444"
+    volumes:
+      - /dev/shm:/dev/shm
