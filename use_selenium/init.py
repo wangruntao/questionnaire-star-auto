@@ -40,14 +40,11 @@ def setup_driver(user_agent):
     options.add_experimental_option('useAutomationExtension', False)
     options.add_argument(f"user-agent={user_agent}")
     options.add_argument('--ignore-certificate-errors')
-    driver = webdriver.Chrome(service=service, options=options)
+    driver = webdriver.Remote(command_executor=config.remote_url, options=options)
+    # driver = webdriver.Chrome(service=service, options=options)
     # 将webdriver属性置为undefined
-    driver.execute_cdp_cmd('Page.addScriptToEvaluateOnNewDocument', {
-        'source': 'Object.defineProperty(navigator, "webdriver", {get: () => undefined})'
-    })
+    # driver.execute_cdp_cmd('Page.addScriptToEvaluateOnNewDocument', {
+    #     'source': 'Object.defineProperty(navigator, "webdriver", {get: () => undefined})'
+    # })
 
-    chromedriver_process = psutil.Process(driver.service.process.pid)
-    # print(f"Chromedriver PID: {chromedriver_process.pid}")
-
-    # 返回driver和PID
-    return driver, chromedriver_process.pid
+    return driver

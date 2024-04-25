@@ -19,7 +19,7 @@ from use_selenium.util.utils1 import single_choice1, multi_choice1, click_button
     fill_blank1, fill_single_blank1
 from use_selenium.util.vm_utils import single_choice2, multi_choice2, click_button2, matrix_scale2, select2, \
     single_scale2, sort2, \
-    fill_blank2, fill_single_blank2
+    fill_blank2, fill_single_blank2,fill_all_other
 
 #
 proxy_lock = threading.Lock()
@@ -54,6 +54,7 @@ def determine_question_type(driver, prob, type_of_question):
     for question in questions:
         # 获取题号，这里假设题号位于元素的ID中，形式如"div1", "div2"等
         question_id = int(question.get_attribute('id').replace('div', ''))
+        # print(question_id)
         # 根据题号判断题型并输出
         # 如果是单选题3
         if question_id in single_choice_questions:
@@ -93,7 +94,8 @@ def determine_question_type(driver, prob, type_of_question):
 
         else:
             print(f"Question {question_id} is not clearly categorized.")
-        # time.sleep(1)
+    fill_all_other(driver)
+    time.sleep(random.uniform(1,5))
 
 
 def kill_chromedriver_by_pid(pid):
@@ -129,7 +131,7 @@ def updata_proxy_data(api):
 def survey_thread(url, num, prob, type_of_question, count_lock, count):
     while count.value < num:
         user_agent = random.choice(user_agents)
-        driver, pid = setup_driver(user_agent)
+        driver = setup_driver(user_agent)
         try:
             open_survey_and_wait(driver, url=url)
             determine_question_type(driver, prob, type_of_question)

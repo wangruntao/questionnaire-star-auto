@@ -1,20 +1,23 @@
 import json
 import multiprocessing
+import threading
 import time
+import uuid
+from concurrent.futures import as_completed
 from concurrent.futures.thread import ThreadPoolExecutor
-import config
+from queue import Queue, Empty
+
+import redis
 from flask import Flask, request, jsonify
+from flask import Response
+
+import config
 from stream_line import survey_thread
 from use_selenium.util.pub_utils import get_url_content
-from queue import Queue, Empty
-import threading
-import uuid
-from util.kill_chrom import kill_chrome_periodically
 from util.get_ques_and_ans import get_que_and_ans
-from flask import Response
-import redis
+from util.kill_chrom import kill_chrome_periodically
 
-redis_client = redis.Redis(host='localhost', port=6379, db=0)
+from util.pub_utils import redis_client, add_task, increment_num, decrement_num
 
 # 定义不同状态的任务队列
 pending_tasks_queue = Queue()  # 待处理任务队列
@@ -28,14 +31,31 @@ tasks_lock = threading.Lock()
 app = Flask(__name__)
 
 
-@app.route('/record_visit',methods=['GET'])
+@app.route('/get_num', methods=['GET'])
+def get_num():
+    survey_count = redis_client.get('survey_count')
+    if survey_count is None:
+        redis_client.set('survey_count', 0)
+        survey_count = 0
+    else:
+        survey_count = int(survey_count)
+    return jsonify({'count': survey_count})
+
+
+@app.route('/record_visit', methods=['GET'])
 def record_visit():
     print('Recording visit...')
     redis_client.incr('visit_count')
     return jsonify(success=True)
 
 
-@app.route('/get_visits',methods=['GET'])
+@app.route('/get_wait_num', methods=['GET'])
+def get_wait_num():
+    wait = pending_tasks_queue.qsize()
+    return jsonify(wait=int(wait))
+
+
+@app.route('/get_visits', methods=['GET'])
 def get_visits():
     print('get_visit')
     visits = redis_client.get('visit_count') or 0
@@ -67,20 +87,17 @@ def analyze_url():
     data = request.get_json()
     url = data['url']
     results = get_que_and_ans(url)
-
-    # 你的解析逻辑，这里假设返回一个固定的结构
-
     return Response(results, mimetype='application/json')
 
 
 # 增加任务
 @app.route('/update_task_list', methods=['POST'])
 def update_task_list():
-    task = request.json.get('task_list')
+    data = request.json.get('task_list')
     # Generate a unique task ID
-    task_id = str(uuid.uuid4())  # Generate a unique identifier
-    task['id'] = task_id  # Attach the unique identifier to the task
-    pending_tasks_queue.put(task)  # Add the task to the pending tasks queue
+    task_id = add_task(data['url'], data['prob'], data['num'])
+    data['id'] = task_id  # Attach the unique identifier to the task
+    pending_tasks_queue.put(data)  # Add the task to the pending tasks queue
     print(f"Task list updated successfully with task ID {task_id}.")
     return jsonify({"message": "Task list updated successfully.", "task_id": task_id}), 200
 
@@ -96,29 +113,26 @@ def pause_task():
             return jsonify({"message": "No task is currently in progress."}), 404
 
 
-def execute_tasks():
-    while True:
-        try:
-            # 尝试从任务队列中获取任务，等待最长5秒
-            task = pending_tasks_queue.get(timeout=5)
-            task_id = task.get('id')  # 假设每个任务都有一个唯一的标识符
-            print("task_id: ", task_id)
+@app.route('/get_task/<task_id>', methods=['GET'])
+def get_task_from_redis(task_id):
+    # 检查当前正在执行的任务ID
+    current_task_id = redis_client.get('current_task_id')
+    if current_task_id is not None:
+        current_task_id = current_task_id.decode('utf-8')
 
-            # 使用锁来确保对正在进行任务列表的线程安全操作
-            with tasks_lock:
-                in_progress_tasks[task_id] = task  # 将任务添加到正在进行的任务字典中
+    # 检查请求的任务ID是否为当前任务
+    if str(task_id) == current_task_id:
+        return {"error": "Task is currently being executed"}
 
-            # 处理任务
-            process_task(task)
+    # 获取任务详情
+    task_data = redis_client.hgetall(f"task:{task_id}")
+    if not task_data:
+        return {"error": "Task not found"}
 
-            # 处理完毕后，从正在进行的任务列表中移除任务，并将其加入已完成任务队列
-            with tasks_lock:
-                del in_progress_tasks[task_id]
-                completed_tasks_queue.put(task)
-
-        except Empty:
-            # 如果队列为空，则打印信息并等待新的任务
-            print("No tasks in the list, waiting for new tasks...")
+    # 如果存在，将任务数据从bytes转换为字符串
+    task_details = {key.decode('utf-8'): value.decode('utf-8') for key, value in task_data.items()}
+    redis_client.delete(f"task:{task_id}")
+    return task_details
 
 
 @app.route('/tasks/all', methods=['GET'])
@@ -141,11 +155,40 @@ def get_all_tasks():
     }), 200
 
 
+def execute_tasks():
+    while True:
+        try:
+            # 尝试从任务队列中获取任务，等待最长5秒
+            task = pending_tasks_queue.get(timeout=5)
+            task_id = task.get('id')  # 假设每个任务都有一个唯一的标识符
+            print("task_id: ", task_id)
+
+            # 使用锁来确保对正在进行任务列表的线程安全操作
+            with tasks_lock:
+                in_progress_tasks[task_id] = task  # 将任务添加到正在进行的任务字典中
+            redis_client.set('current_task_id', task_id)
+            # 处理任务
+            process_task(task)
+            # Set or update the current task ID in Redis
+
+            # 处理完毕后，从正在进行的任务列表中移除任务，并将其加入已完成任务队列
+            with tasks_lock:
+                del in_progress_tasks[task_id]
+                completed_tasks_queue.put(task)
+                redis_client.delete(f"task:{task_id}")  # 删除任务数据
+                print(f"Task {task_id} completed and removed from Redis.")
+
+
+        except Empty:
+            # 如果队列为空，则打印信息并等待新的任务
+            print("No tasks in the list, waiting for new tasks...")
+
+
 def process_task(task):
     # 获取任务详情
     start_time = time.time()
     url = task.get('url')
-    num = task.get('num')
+    num = int(task.get('num'))
     prob_str = task.get('prob')
     print(f"Executing task for URL: {url} with num: {num} and prob: {prob_str}")
 
@@ -163,22 +206,30 @@ def process_task(task):
 
     count_lock = threading.Lock()
     count = multiprocessing.Value('i', 0)
+    increment_num(num)
 
     # 使用线程池来并发执行任务
     with ThreadPoolExecutor(max_workers=config.thread_num) as executor:
         futures = [executor.submit(survey_thread, url, num, prob_with_int_keys, type_of_question, count_lock, count)
                    for _ in range(config.thread_num)]
         # 等待所有线程完成任务
-        for future in futures:
-            future.result()
-
+        for future in as_completed(futures):
+            try:
+                result = future.result()
+            except Exception as exc:
+                print(f"A task failed with exception: {exc}")
+            else:
+                print(f"Task completed successfully: {result}")
     # 打印任务完成信息
     print(f"Task for URL: {url} completed.")
     end_time = time.time()
+    decrement_num(num)
     print(f"用时: {end_time - start_time:.2f}秒")
 
 
 if __name__ == "__main__":
-    threading.Thread(target=kill_chrome_periodically, daemon=True, args=(config.kill_chrome_interval,)).start()
+    # 开启时默认无任务
+    redis_client.setnx('survey_count', 0)
+    # threading.Thread(target=kill_chrome_periodically, daemon=True, args=(config.kill_chrome_interval,)).start()
     threading.Thread(target=execute_tasks, daemon=True).start()
     app.run(host='0.0.0.0', port=5000, debug=True)

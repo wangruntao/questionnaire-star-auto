@@ -10,7 +10,8 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from use_selenium.util.pub_utils import preprocess_prob, add_one
 
-
+def fill_all_other(driver):
+    pass
 # 检查有没有答完
 def detect_full2(driver):
     try:

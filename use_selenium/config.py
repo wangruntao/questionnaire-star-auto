@@ -1,31 +1,60 @@
+import os
+
 import requests
+
 kill_chrome_interval = 120
+remote = '127.0.0.1'
+remote_url = f'http://{remote}:9516/wd/hub'
 # 目标网址
 url = 'https://www.wjx.cn/vm/Pi4VOMa.aspx?open_in_browser=true'  # 护士
-# debug = True
-debug = False
+debug = True
+# debug = False
 # use_proxy_pool = True
 use_proxy_pool = False
 # 线程数，份数
-thread_num = 4
+thread_num = 1
 epoch = 100
 sleep_time = 0
 
 task_list = [
     {
-        'url': 'https://www.wjx.cn/vm/eRESiE2.aspx#',
-        'prob': {},
-        # 'prob': {
-        #     1: [270, 300],
-        #     2: [98, 80, 137],
-        #     3: [13, 14, 15],
-        #     4: [81, 234],
-        #     5: [820, 2204, 126],
-        #     6: [2439, 2065, 733, 748],
-        #     7: [2836, 3811, 1255, 855, 666],
-        #     8: [811, 1300, 400, 400, 232],
-        # },
-        'num': 50
+        'url': 'https://www.wjx.cn/vm/rviLf1r.aspx#',
+        'prob': {
+            "1": [40, 60],
+            "2": [30, 40, 30],
+            "3": [100],
+            "4": [50, 30, 5, 35, 0, 0, 10],
+            "5": [25, 30, 20, 25, 0],
+            "6": [25, 60, 10, 5],
+            "7": [50, 35, 10, 3, 2],
+            "8": [20, 40, 5, 80, 35, 25, 25, 55, 5],
+            "9": [35, 65],
+            "10": [40, 30, 30],
+            "11": [40, 10, 10, 40],
+            "12": [50, 15, 30, 30, 20],
+            "13": [60, 40],
+            "14": [10, 70, 10, 10],
+            "15": [5, 20, 20, 55],
+            "16": [60, 35, 10, 40],
+            "17": [50, 35, 30, 20, 0, 80],
+            "18": [25, 75],
+            "19": [10, 15, 20, 55],
+            "20": [35, 60, 0, 5],
+            "21": [70, 75, 70, 70, 65, 70, 5],
+            "22": [75, 80, 70, 75, 70, 70],
+            "23": [50, 20, 20, 15, 40],
+            "24": [30, 20, 20, 40, 10, 10, 20, 10],
+            "25": [15, 30, 30, 15, 50],
+            "26": [55, 50, 50, 5],
+            "27": [15, 25, 30, 30],
+            "28": [80, 20],
+            "29": [85, 15],
+            "30": [60, 50, 35, 10, 10, 5],
+            "31": [60, 50, 40, 40],
+            "32": ["公开课", "正能量的", "符合社会主义核心价值观的", "学校开展的活动", "可以参与动手",
+                   "可以学习一些知识", "社会实践课程", "不太清楚", "有趣的"]
+        },
+        'num': 98
     }]
 
 # 什么类型的问卷
@@ -56,13 +85,13 @@ use_local_proxy = False
 # IP API提取链接 https://xip.ipzan.com/ 这个每周都有几百个免费的IP代理领取
 
 driver_path = r"C:\Users\wrt\Downloads\chromedriver-win64\chromedriver-win64\chromedriver.exe"
+# driver_path = os.environ.get('CHROMEDRIVER_PATH')
+
 # driver_path = r"C:\Users\11575\Downloads\chromedriver-win64\chromedriver.exe"
 if debug:
     headless = False
 else:
     headless = True
-
-
 
 UA = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36 Edg/121.0.0.0",
@@ -204,4 +233,3 @@ UA = [
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Safari/605.1.15",
     # Continue adding other User-Agent strings similarly
 ]
-
