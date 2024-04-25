@@ -44,7 +44,8 @@ def add_task(url, prob, num):
 
     # Now you can safely use 'task_queue' as a list
     redis_client.lpush('task_queue', task_id)  # Example of adding an item to the list
-
+    url_id = url.split("/")[-1].split(".")[0]
+    redis_client.lpush(f"url_to_task_id:{url_id}", task_id)
     increment_num(num)
     return task_id
 

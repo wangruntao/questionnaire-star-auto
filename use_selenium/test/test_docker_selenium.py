@@ -19,5 +19,5 @@ driver = webdriver.Remote(command_executor=remote_url, options=chrome_options)
 driver.get('https://www.baidu.com')
 
 # 关闭浏览器
-<<<<<<< HEAD
+
 # driver.quit()
