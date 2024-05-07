@@ -59,43 +59,64 @@ def determine_question_type(driver, prob, type_of_question):
         # 如果是单选题3
         if question_id in single_choice_questions:
             # print(f"Question {question_id} is a single-choice question.")
-            single_choice[type](driver, question_id, prob)
-
+            try:
+                single_choice[type](driver, question_id, prob)
+            except Exception as e:
+                print(f"Question {question_id} is a single-choice question.")
         elif question_id in fill_single_blank_questions:
-
-            fill_single_blank[type](driver, question_id, prob)
+            try:
+                fill_single_blank[type](driver, question_id, prob)
+            except Exception as e:
+                print(e, f"Question {question_id} ")
 
         elif question_id in fill_blank_questions:
-
-            fill_blank[type](driver, question_id, prob)
-
+            try:
+                fill_blank[type](driver, question_id, prob)
+            except:
+                print(f"Question {question_id} ")
         # 如果是多选题4
         elif question_id in multiple_choice_questions:
-
-            multi_choice[type](driver, question_id, prob)
+            try:
+                multi_choice[type](driver, question_id, prob)
+            except:
+                print(f"Question {question_id} ")
+            # multi_choice[type](driver, question_id, prob)
 
         elif question_id in single_scale_questions:
-
-            single_scale[type](driver, question_id, prob)
+            try:
+                single_scale[type](driver, question_id, prob)
+            except:
+                print(f"Question {question_id} ")
+            # single_scale[type](driver, question_id, prob)
 
         # 如果是q矩阵量表
         elif question_id in matrix_rating:
-
-            matrix_scale[type](driver, question_id, prob)
+            try:
+                matrix_scale[type](driver, question_id, prob)
+            except:
+                print(f"Question {question_id} ")
+            # matrix_scale[type](driver, question_id, prob)
 
         # 如果是下拉框
         elif question_id in select_questions:
-
-            select[type](driver, question_id, prob)
+            try:
+                select[type](driver, question_id, prob)
+            except Exception as e:
+                print(e, f"Question {question_id} ")
+            # select[type](driver, question_id, prob)
 
         elif question_id in sort_questions:
-
-            sort[type](driver, question_id, prob)
+            try:
+                sort[type](driver, question_id, prob)
+            except Exception as e:
+                print(e, f"Question {question_id} ")
+            # sort[type](driver, question_id, prob)
 
         else:
             print(f"Question {question_id} is not clearly categorized.")
+        # time.sleep(random.uniform(0, 1))
     fill_all_other(driver)
-    time.sleep(random.uniform(1, 5))
+    time.sleep(random.uniform(0, 2))
 
 
 def kill_chromedriver_by_pid(pid):
@@ -156,7 +177,7 @@ def survey_thread(url, num, prob, type_of_question, count_lock, count):
                     print(f"任务 {url} 的驱动已正确退出。")
                 except WebDriverException:
                     print(f"关闭驱动时发生错误，任务 {url}。")
-            time.sleep(5)  # 如果你希望在每次循环之间有暂停的话
+            time.sleep(1)  # 如果你希望在每次循环之间有暂停的话
 
 
 # 在 main 函数中修改线程创建逻辑
@@ -237,4 +258,4 @@ if __name__ == "__main__":
         type_of_question = get_url_content(url)
         count_lock = threading.Lock()
         count = multiprocessing.Value('i', 0)
-        survey_thread(url, num, prob, type_of_question, count_lock, count)
+        survey_thread(url, 10, prob, type_of_question, count_lock, count)

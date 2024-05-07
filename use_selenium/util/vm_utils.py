@@ -35,12 +35,12 @@ def click_button2(driver):
             EC.visibility_of_element_located((By.XPATH, '//*[@id="ctlNext"]'))
         )
         print("Button is no longer visible, assumed success.")
-        return True
-
     except TimeoutException:
         print("Button did not disappear, validation might be needed.")
+
     except Exception as e:
         print('点击失败:', str(e))
+
 
     # 检查是否存在确认验证的按钮
     try:

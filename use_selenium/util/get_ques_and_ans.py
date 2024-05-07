@@ -1,3 +1,5 @@
+import random
+
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
@@ -25,7 +27,7 @@ def get_que_and_ans(url):
     options = Options()
     options.add_argument('--headless')
     # driver = webdriver.Chrome(options=options)
-    driver = webdriver.Remote(command_executor=config.remote_url, options=options)
+    driver = webdriver.Remote(command_executor=random.choice(config.remote_url), options=options)
     driver.get(url)
 
     # Parse the HTML content

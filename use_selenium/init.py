@@ -40,7 +40,7 @@ def setup_driver(user_agent):
     options.add_experimental_option('useAutomationExtension', False)
     options.add_argument(f"user-agent={user_agent}")
     options.add_argument('--ignore-certificate-errors')
-    driver = webdriver.Remote(command_executor=config.remote_url, options=options)
+    driver = webdriver.Remote(command_executor=random.choice(config.remote_url), options=options)
     # driver = webdriver.Chrome(service=service, options=options)
     # 将webdriver属性置为undefined
     # driver.execute_cdp_cmd('Page.addScriptToEvaluateOnNewDocument', {
