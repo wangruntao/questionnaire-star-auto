@@ -4,15 +4,15 @@ import requests
 
 kill_chrome_interval = 120
 remote_url = []
-remote1 = '10.129.101.246'
+remote1 = '127.0.0.1'
 remote2 = '127.0.0.1'
 remote_url.append(remote1)
 remote_url.append(remote2)
-remote_url = [f'http://{remote}:9516/wd/hub' for remote in remote_url]
+remote_url = [f'http://{remote}:4444/wd/hub' for remote in remote_url]
 # 目标网址
-url = 'https://www.wjx.cn/vm/Pi4VOMa.aspx?open_in_browser=true'  # 护士
-# debug = True
-debug = False
+url = 'https://www.wjx.cn/vm/Pi4VOMa.aspx?open_in_browser=true'
+debug = True
+# debug = False
 # use_proxy_pool = True
 use_proxy_pool = False
 # 线程数，份数
@@ -22,8 +22,8 @@ sleep_time = 0
 
 task_list = [
     {
-        'url': 'https://www.wjx.cn/vm/PzuPazu.aspx',
-        'prob': {"1": [7, 3], "2": [7, 3], "3": [2, 4, 3, 1], "4": [8, 2], "5": [1, 1], "6": [6, 4], "7": [2, 8], "8": [7, 3], "9": [8, 2], "10": [7, 3], "11": [6, 4], "12": [9, 1], "13": [8, 2], "14": [6, 4], "15": [8, 2], "16": [8, 2]},
+        'url': 'https://www.wjx.cn/vm/ecnojA5.aspx# ',
+        'prob': {},
         'num': 98
     }]
 

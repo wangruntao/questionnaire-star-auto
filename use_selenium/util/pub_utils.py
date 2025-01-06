@@ -66,7 +66,7 @@ def get_que_and_ans(url):
 def get_url_content(url):
     # Configure ChromeOptions
     options = Options()
-    options.add_argument('--headless')
+    # options.add_argument('--headless')
 
     driver = webdriver.Chrome(options)  # or whichever browser driver you need
     driver.get(url)
