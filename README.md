@@ -57,7 +57,7 @@ docker-compose up -d
     
 ![img.png](img.png)
 
-## 有界面模式
+### 有界面模式
 需要进入到my-wjx-vite 目录下:
 ```angular2html
 npm install
