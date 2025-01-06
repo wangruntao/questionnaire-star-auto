@@ -4,6 +4,7 @@ import requests
 
 kill_chrome_interval = 120
 remote_url = []
+#  可以多个机器一起刷~  这里我只是放了本地的ip,实际上可以换成远程的ip,前提是要安装好chromedriver
 remote1 = '127.0.0.1'
 remote2 = '127.0.0.1'
 remote_url.append(remote1)
